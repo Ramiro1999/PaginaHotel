@@ -25,13 +25,8 @@ public class UserController {
     }
 
     @GetMapping("/new")
-    public String userNew(Model model, Authentication auth){
+    public String userNew(Model model){
         model.addAttribute("user", new User());
-        if(auth != null) {
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
-        }
         return "Users/new";
 
     }
@@ -45,12 +40,8 @@ public class UserController {
     */
 
     @PostMapping
-    public String create(@ModelAttribute User user, Model model, Authentication auth){
-        if(auth != null) {
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
-        }
+    public String create(@ModelAttribute User user, Model model){
+
         if(userService.create(user)) {
             return "redirect:/Users";
         }else{
@@ -63,11 +54,6 @@ public class UserController {
     @GetMapping
     public String userBienvenido(Model model,Authentication auth){
         model.addAttribute("user", new User());
-        if(auth != null) {
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
-        }
         return "/Users/index";
     }
 

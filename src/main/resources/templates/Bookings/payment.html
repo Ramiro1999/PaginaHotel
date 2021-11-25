@@ -28,7 +28,7 @@
             </li>
 
             <li>
-                <a href="#">
+                <a href="/Bookings/VerHabitaciones">
                     Nuestras habitaciones
                 </a>
             </li>
@@ -50,7 +50,7 @@
         <ul class="nav-regis">
 
             <li>
-                <a><label   id="Users" th:text ="${firstName} + ' ' + ${lastName}" > </label></a>
+                <a><label   id="Users" th:text ="${#httpServletRequest.getRemoteUser()}" > </label></a>
 
             </li>
             <li>

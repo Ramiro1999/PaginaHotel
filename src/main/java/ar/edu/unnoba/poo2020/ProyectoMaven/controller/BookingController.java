@@ -45,25 +45,17 @@ public class BookingController {
     }
 
     @GetMapping("/availability")
-    public String roomsAvailability(Model model, Authentication auth){
+    public String roomsAvailability(Model model){
         model.addAttribute("roomsAvailability", new RoomsAvailabilityDTO());
         model.addAttribute("rooms",new ArrayList<RoomDTO>());
-        if(auth != null) {
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
-        }
+
         return "Bookings/availability";
     }
 
     @PostMapping("/availability")
-    public String getRoomsAvailable(@ModelAttribute RoomsAvailabilityDTO roomsAvailabilityDTO, Model model,Authentication auth) throws ParseException {
+    public String getRoomsAvailable(@ModelAttribute RoomsAvailabilityDTO roomsAvailabilityDTO, Model model) throws ParseException {
         if(bookingService.VerificarFechas(roomsAvailabilityDTO.getCheckInDateConverted(),roomsAvailabilityDTO.getCheckOutDateConverted())) {
-            if(auth != null) {
-                User u = (User) auth.getPrincipal();
-                model.addAttribute("firstName", u.getFirstName());
-                model.addAttribute("lastName", u.getLastName());
-            }
+
             model.addAttribute("roomsAvailability", new RoomsAvailabilityDTO());
             model.addAttribute("rooms",new ArrayList<RoomDTO>());
             model.addAttribute("mensaje","");
@@ -82,11 +74,7 @@ public class BookingController {
             List<RoomDTO> roomDTO = rooms.stream()
                     .map(room -> modelMapper.map(room, RoomDTO.class))
                     .collect(Collectors.toList());
-            if (auth != null) {
-                User u = (User) auth.getPrincipal();
-                model.addAttribute("firstName", u.getFirstName());
-                model.addAttribute("lastName", u.getLastName());
-            }
+
             model.addAttribute("rooms", roomDTO);
             model.addAttribute("roomsAvailability", roomsAvailabilityDTO);
             model.addAttribute("Booking", new NewBookingRequestDTO());
@@ -102,11 +90,6 @@ public class BookingController {
         booking.setCheckIn(newBookingRequestDTO.getCheckIn());
         booking.setCheckOut(newBookingRequestDTO.getCheckOut());
         booking.setOccupancy(newBookingRequestDTO.getOccupancy());
-        if(auth != null) {
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
-        }
         model.addAttribute("Booking",booking);
         return "Bookings/new";
     }
@@ -128,9 +111,7 @@ public class BookingController {
         }
         //delegacion de confirmacion a un servicio y en funcion de la respuesta redireciconar
         try{
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
+
             model.addAttribute("Booking2",booking);
             model.addAttribute("payment",new PaymentDTO());
             return "Bookings/payment";
@@ -141,25 +122,15 @@ public class BookingController {
     }
 
     @PostMapping("/pago")
-    public String realizarPago(@ModelAttribute PaymentDTO paymentDTO, Model model, @ModelAttribute("Booking2")Booking booking,Authentication auth) throws Exception {
+    public String realizarPago(@ModelAttribute PaymentDTO paymentDTO, Model model, @ModelAttribute("Booking2")Booking booking) throws Exception {
         try {
             Booking booking1 = bookingService.newBooking(booking);
             paymentDTO.setIdbooking(booking1.getId());
             Payment p = modelMapper.map(paymentDTO, Payment.class);
             p.setBooking(booking1);
             paymentService.savePayment(p);
-            if(auth != null) {
-                User u = (User) auth.getPrincipal();
-                model.addAttribute("firstName", u.getFirstName());
-                model.addAttribute("lastName", u.getLastName());
-            }
             return "Bookings/confirmed";
         }catch (Exception e){
-            if(auth != null) {
-                User u = (User) auth.getPrincipal();
-                model.addAttribute("firstName", u.getFirstName());
-                model.addAttribute("lastName", u.getLastName());
-            }
             return "error/500";
         }
 
@@ -170,8 +141,6 @@ public class BookingController {
         if(auth != null) {
             cancelationService.deleteAll();
             User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
             List<Booking> Reservabookings = bookingService.listarReservas(u.getId());
             model.addAttribute("listaReservas",Reservabookings);
         }
@@ -182,9 +151,6 @@ public class BookingController {
     @GetMapping("/{id}/detalles")
     public String verDetalles(@PathVariable Long id,Model model,Authentication auth){
         if(auth != null) {
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
             Booking booking=bookingService.findBooking(id);
             model.addAttribute("BookingDetalles",booking);
         }
@@ -197,9 +163,6 @@ public class BookingController {
     @GetMapping("/cancelar/{id}")
     public String cancelarReserva(@PathVariable Long id, Model model,Authentication auth) {
         if(auth != null) {
-            User u = (User) auth.getPrincipal();
-            model.addAttribute("firstName", u.getFirstName());
-            model.addAttribute("lastName", u.getLastName());
             Booking booking = bookingService.findBooking(id);
             if(cancelationService.findCancellationByBooking(booking.getId())!=null){
                 Cancellation cancelation = cancelationService.findCancellationByBooking(booking.getId());
@@ -224,21 +187,12 @@ public class BookingController {
             cancelationService.delete(id);
             paymentService.deletePayment(payment.getId());
             bookingService.delete(booking.getId());
-            if (auth != null) {
-                User u = (User) auth.getPrincipal();
-                model.addAttribute("firstName", u.getFirstName());
-                model.addAttribute("lastName", u.getLastName());
-                model.addAttribute("mensaje2", "");
-                model.addAttribute("BookingReserva", booking);
-            }
+            model.addAttribute("mensaje2", "");
+            model.addAttribute("BookingReserva", booking);
         }else {
-            if(auth != null) {
-                User u = (User) auth.getPrincipal();
-                model.addAttribute("firstName", u.getFirstName());
-                model.addAttribute("lastName", u.getLastName());
                 model.addAttribute("mensaje1","");
                 model.addAttribute("cancelation",cancellation);
-            }
+
 
         }
 
